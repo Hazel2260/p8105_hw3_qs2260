@@ -8,6 +8,9 @@ output: github_document
 ```{r}
 library(tidyverse)
 library(patchwork)
+library(dplyr)
+library(ggplot2)
+library(ggridges)
 ```
 
 # Problem 2
@@ -17,7 +20,7 @@ Sum up 24 hour activity
 tidy_acce = read_csv(file = "data/accel_data.csv")%>% 
   janitor::clean_names()%>%
   mutate(classify = ifelse((day == "Saturday"|day == "Sunday"),"weekend","weekday"))%>%
-  mutate(total_act = rowSums(.[4:1443])
+  mutate(total_act = rowSums(.[4:1443]))
 
 
 ```
@@ -29,9 +32,8 @@ tidy_gf = tidy_acce %>%
   pivot_longer(activity_1:activity_1440,
                names_to = 'minutes',
                values_to = 'act') %>%
-  ggplot(aes(x=minutes, y= act, color = day))+
-  geom_point(alpha=0.5)+
-  scale_x_discrete( breaks = c("0", "300", "600","900","1200","1500"), labels = c("0","300", "600","900","1200","1500"))
+  ggplot(aes(x=as.integer(sub("activity_","",minutes)), y= act, color = day))+
+  geom_line(alpha=0.5)
 
 tidy_gf
 ```
@@ -40,7 +42,12 @@ tidy_gf
 ```{r}
 tidy_noaa = read_csv(file = "data/nynoaadat.csv")%>% 
   janitor::clean_names()%>%
-  separate(date, into = c("year", "month", "day"))
+  separate(date, into = c("year", "month", "day"))%>%
+  mutate(prcp = prcp / 10 ,
+    tmax = as.numeric(tmax) /10,
+    tmin = as.numeric(tmin) /10,
+    year = as.numeric(year),
+    day = as.numeric(day))
   
 ```
 
@@ -48,18 +55,28 @@ tidy_noaa = read_csv(file = "data/nynoaadat.csv")%>%
 names(which.max(table(tidy_noaa$snow)))
 ```
 ```{r}
-tidy_mon = tidy_noaa %>%
-  filter(month == c("01", "07") %>%
-  group_by(year) %>%
-  mutate(ave_tmax = mean(tmax, na.rm=TRUE)) %>%
-  ggplot(aes(x=year, y=ave_tmax, color=id))+
-  geom_point()
-
+tidy_mon = tidy_noaa%>%
+  filter(month == c("01", "07"))%>%
+  group_by(id, year, month)%>%
+  summarize(ave_tmax = mean(tmax, na.rm=TRUE))%>%
+  ggplot(aes(x=year, y=ave_tmax, color=month))+
+  geom_point()+
+  geom_smooth(alpha=0.5)+
+  facet_grid(.~month)
+  
 
 tidy_mon
 ```
 
 ```{r}
+min_max=ggplot(tidy_noaa, aes(x=tmin, y=tmax))+geom_hex()
 
+snowfall= tidy_noaa%>%
+  filter(0< snow, snow<100)%>%
+  mutate(year = as.factor(year))%>%
+  ggplot(aes(x=snow, color=year))+
+  geom_density()
+
+snowfall/min_max
 ```
 
