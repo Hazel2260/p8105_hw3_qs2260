@@ -1,0 +1,65 @@
+---
+title: "p8105_hw3_qs2260"
+author: "hazel"
+date: "2022-10-11"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+library(patchwork)
+```
+
+# Problem 2
+
+Sum up 24 hour activity
+```{r}
+tidy_acce = read_csv(file = "data/accel_data.csv")%>% 
+  janitor::clean_names()%>%
+  mutate(classify = ifelse((day == "Saturday"|day == "Sunday"),"weekend","weekday"))%>%
+  mutate(total_act = rowSums(.[4:1443])
+
+
+```
+made up table and draw plot
+```{r}
+tidy_df =tidy_acce %>% 
+  select(week, day, classify, total_act)
+tidy_gf = tidy_acce %>%
+  pivot_longer(activity_1:activity_1440,
+               names_to = 'minutes',
+               values_to = 'act') %>%
+  ggplot(aes(x=minutes, y= act, color = day))+
+  geom_point(alpha=0.5)+
+  scale_x_discrete( breaks = c("0", "300", "600","900","1200","1500"), labels = c("0","300", "600","900","1200","1500"))
+
+tidy_gf
+```
+# Problem 3
+
+```{r}
+tidy_noaa = read_csv(file = "data/nynoaadat.csv")%>% 
+  janitor::clean_names()%>%
+  separate(date, into = c("year", "month", "day"))
+  
+```
+
+```{r}
+names(which.max(table(tidy_noaa$snow)))
+```
+```{r}
+tidy_mon = tidy_noaa %>%
+  filter(month == c("01", "07") %>%
+  group_by(year) %>%
+  mutate(ave_tmax = mean(tmax, na.rm=TRUE)) %>%
+  ggplot(aes(x=year, y=ave_tmax, color=id))+
+  geom_point()
+
+
+tidy_mon
+```
+
+```{r}
+
+```
+
