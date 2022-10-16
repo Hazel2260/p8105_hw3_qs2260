@@ -12,6 +12,9 @@ library(dplyr)
 library(ggplot2)
 library(ggridges)
 ```
+```{r}
+qnorm(0.975)
+```
 
 # Problem 2
 
@@ -21,13 +24,12 @@ tidy_acce = read_csv(file = "data/accel_data.csv")%>%
   janitor::clean_names()%>%
   mutate(classify = ifelse((day == "Saturday"|day == "Sunday"),"weekend","weekday"))%>%
   mutate(total_act = rowSums(.[4:1443]))
-
-
 ```
 made up table and draw plot
 ```{r}
 tidy_df =tidy_acce %>% 
-  select(week, day, classify, total_act)
+  select(week, day, classify, total_act)%>%
+  arrange(total_act)
 tidy_gf = tidy_acce %>%
   pivot_longer(activity_1:activity_1440,
                names_to = 'minutes',
@@ -36,7 +38,13 @@ tidy_gf = tidy_acce %>%
   geom_line(alpha=0.5)
 
 tidy_gf
+
 ```
+After cleaning the dataset, the tidy_acce table lefts 35 rows and 1445 columns, which contains 1443 varibles includes week, day_id, day and 1440 minutes activity. 
+
+The the table tidy_df shows the total activity of each day, which shows that the week and day is not really related with total activity.
+
+Based on the ggplot result, it can be concluded that the most higher activity are mainly focus on 1200 minutes, and the lowest activity are located at around 200 minutes. 
 # Problem 3
 
 ```{r}
