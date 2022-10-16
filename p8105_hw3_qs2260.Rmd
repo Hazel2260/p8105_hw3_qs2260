@@ -1,6 +1,6 @@
 ---
 title: "p8105_hw3_qs2260"
-author: "hazel"
+author: "Qingzhen Sun"
 date: "2022-10-11"
 output: github_document
 ---
@@ -11,10 +11,58 @@ library(patchwork)
 library(dplyr)
 library(ggplot2)
 library(ggridges)
+library(p8105.datasets)
+
+```
+# problem 1
+```{r}
+
+data("instacart")
+
+instacart = 
+  instacart %>% 
+  as_tibble(instacart)
+```
+
+```{r}
+instacart %>% 
+  count(aisle) %>% 
+  arrange(desc(n))
+```
+
+```{r}
+instacart %>% 
+  count(aisle) %>% 
+  filter(n > 10000) %>% 
+  mutate(aisle = fct_reorder(aisle, n)) %>% 
+  ggplot(aes(x = aisle, y = n)) + 
+  geom_point() + 
+  labs(title = "Number of items ordered in each aisle") +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+```{r}
+instacart %>% 
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>%
+  group_by(aisle) %>% 
+  count(product_name) %>% 
+  mutate(rank = min_rank(desc(n))) %>% 
+  filter(rank < 4) %>% 
+  arrange(desc(n)) %>%
+  knitr::kable()
 ```
 ```{r}
-qnorm(0.975)
+instacart %>%
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>%
+  group_by(product_name, order_dow) %>%
+  summarize(mean_hour = mean(order_hour_of_day)) %>%
+  spread(key = order_dow, value = mean_hour) %>%
+  knitr::kable(digits = 2)
 ```
+
+
+
+
 
 # Problem 2
 
@@ -62,6 +110,7 @@ tidy_noaa = read_csv(file = "data/nynoaadat.csv")%>%
 ```{r}
 names(which.max(table(tidy_noaa$snow)))
 ```
+The most commonly observed value for snowfall is 0, since most of time there's not snow day which do not have snowfall.
 ```{r}
 tidy_mon = tidy_noaa%>%
   filter(month == c("01", "07"))%>%
@@ -75,6 +124,8 @@ tidy_mon = tidy_noaa%>%
 
 tidy_mon
 ```
+
+Through the two-panel plot above, the temperature of july is higher than january obviously. Also, the stability of july is better than january, since the fluctuation of january id larger. On average, the max temperature of july is about 25 degrees higher than january.
 
 ```{r}
 min_max=ggplot(tidy_noaa, aes(x=tmin, y=tmax))+geom_hex()
