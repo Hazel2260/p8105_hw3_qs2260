@@ -93,6 +93,7 @@ After cleaning the dataset, the tidy_acce table lefts 35 rows and 1445 columns, 
 The the table tidy_df shows the total activity of each day, which shows that the week and day is not really related with total activity.
 
 Based on the ggplot result, it can be concluded that the most higher activity are mainly focus on 1200 minutes, and the lowest activity are located at around 200 minutes. 
+
 # Problem 3
 
 ```{r}
